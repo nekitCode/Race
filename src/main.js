@@ -3,8 +3,12 @@ const score = document.querySelector('.score'),
       gameArea = document.querySelector('.gameArea'),
       car = document.createElement('div');
       car.classList.add('car');
+	  music = document.createElement('audio');
+
 
 car.classList.add('car');      
+
+
 
 start.addEventListener('click', startGame);
 document.addEventListener('keydown', startRun);
@@ -21,18 +25,34 @@ const setting = {
     start: false,
     score: 0,
     speed: 3,
-    traffic: 3
+    traffic: 4,
+    a: 0
 };
 
-function getQuantityElements(heightElement){
-    return document.documentElement.clientHeight / heightElement + 1;
-}
+const getQuantityElements = (heightElement) => {
+    return Math.ceil( gameArea.offsetHeight / heightElement); //document.documentElement.clientHeight
+};
 
 function startGame(){
-    // start.style.display = 'none'
+	if(event.target.classList.contains('start')){
+		return;
+	}
+	if(event.target.classList.contains('easy')){
+		setting.speed = 5;
+		setting.traffic = 3;
+	}
+	if(event.target.classList.contains('medium')){
+        setting.speed = 6;
+        setting.traffic = 3;
+	}
+	if(event.target.classList.contains('hard')){
+        setting.speed = 7;
+        setting.traffic = 2;
+	}
+	
+	
     start.classList.add('hide');
-
-    for(let i = 0; i < getQuantityElements(100); i++){
+    for(let i = 0; i < getQuantityElements(100) + 1; i++){
         const line = document.createElement('div');
         line.classList.add('line');
         line.style.top = (i * 100) + 'px';
@@ -40,29 +60,56 @@ function startGame(){
         gameArea.appendChild(line)
     }
 
-    for(let i = 0; i < getQuantityElements(100) * setting.traffic; i++){
+    for(let i = 0; i < getQuantityElements(100 * setting.traffic); i++){
         const enemy = document.createElement('div');
+		let enemyImg = Math.floor(Math.random() * 2) + 1;
         enemy.classList.add('enemy');
         enemy.y = -100 * setting.traffic * (i + 1);
         enemy.style.left = Math.floor(Math.random() * (gameArea.offsetWidth - 50)) + 'px';
         enemy.style.top = enemy.y + 'px';
-        enemy.style.background = 'transparent url(./image/enemy2.png) center / cover no-repeat';
+		enemy.style.background = `transparent url(./image/enemy${enemyImg}.png) center / cover no-repeat`;
         gameArea.appendChild(enemy);
     }
 
     
-
+	setting.score = 0;
     setting.start = true;
     gameArea.appendChild(car);
+	car.style.left = gameArea.offsetWidth / 2 - car.offsetWidth / 2;
+	car.style.top = 'auto';
+	car.style.bottom = '10px';
+	music.setAttribute('autoplay', true);
+	music.setAttribute('src', './audio.mp3');
+	music.setAttribute('controls', true);
+	gameArea.appendChild(music); 
     setting.x = car.offsetLeft;
     setting.y = car.offsetTop;
     requestAnimationFrame(playGame);
+	
+	//setTimeout(function(){
+	//	setting.start = false;
+		
+	//}, 5000)
 }
 
 function playGame(){
+
+
+    if(setting.score > 2000 && setting.a == 0){
+        setting.speed++;
+        setting.a++;
+    }else if (setting.score > 5000 && setting.a == 1){
+        setting.speed++;
+        setting.a++;
+    }else if (setting.score > 10000 && setting.a == 2){
+        setting.speed++;
+        setting.a++;
+    }
+
+    setting.score += setting.speed;
+    score.innerHTML = 'Score<br>' + setting.score;
     moveRoad();
     moveEnemy();
-    if(setting.start){
         if(keys.ArrowLeft && setting.x > 0){
             setting.x -= setting.speed;
         } 
@@ -79,20 +126,28 @@ function playGame(){
         }
 
         car.style.left = setting.x + 'px';
-        car.style.top = setting.y + 'px'; 
-        
+        car.style.top = setting.y + 'px';
+    if(setting.start){
         requestAnimationFrame(playGame);
-    }
+    }else {
+		music.remove();
+	}
 }
 
 function startRun(event){
     event.preventDefault();
-    keys[event.key] = true;
+    if(keys.hasOwnProperty(event.key)){
+		keys[event.key] = true;
+	}
+	
 }
+
 
 function stopRun(event){
     event.preventDefault(); 
-    keys[event.key] = false;
+    if(keys.hasOwnProperty(event.key)){
+		keys[event.key] = false;
+	}
 }
 
 function moveRoad(){
@@ -111,6 +166,18 @@ function moveRoad(){
 function moveEnemy(){
     let enemy = document.querySelectorAll('.enemy');
     enemy.forEach((item) => {
+		let carRect = car.getBoundingClientRect();
+		let enemyRect = item.getBoundingClientRect();
+		
+		if(carRect.top <= enemyRect.bottom && 
+		carRect.right >= enemyRect.left && 
+		carRect.left <= enemyRect.right &&
+		carRect.bottom >= enemyRect.top){
+			setting.start = false;
+			start.classList.remove('hide');
+			start.style.top = score.offsetHeight;
+		}
+		
         item.y += setting.speed / 2;
         item.style.top = item.y + 'px';
 

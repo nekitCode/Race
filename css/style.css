@@ -43,7 +43,33 @@ table {
 
 
 .hide {
-    display: none;
+    display: none !important;
+}
+
+.start {
+	position:absolute;
+    display: flex;
+	justify-content: center;
+	flex-wrap:wrap;
+	left: 0;
+	top: 0;
+	width:100%;
+	margin: 0;
+	padding: 2rem 0;
+	text-align: center;
+	z-index:200;
+	color:#ffff;
+	font-size: 1.5rem;
+	background:black;
+	font-family: sans-serif;
+	font-weight: 700; 
+}
+
+.start>div{
+	margin: 0 10px;
+	border:2px dotted whitesmoke;
+	padding: 4px;
+	cursor:pointer;
 }
 
 .car, .enemy {
@@ -57,10 +83,10 @@ table {
 
 .gameArea {
     width: 300px;
-    height: 100vh ;
+    height: 100vh;
     position: relative;
     margin: auto;
-    background: #2222;
+    background: #222;
     overflow: hidden;
 }
 
@@ -70,4 +96,18 @@ table {
     height: 50px;
     background: #ffff;
     left: 145px;
+}
+
+.score {
+	position:relative;
+	top: 0;
+	left: 0;
+	width: 100%;
+	background:black;
+	padding: 1rem 0;
+	font-size: 1.5rem;
+	text-align: center;
+	font-family: sans-serif;
+	font-weight: 500;
+	color:white;
 }
